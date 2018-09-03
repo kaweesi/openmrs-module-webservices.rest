@@ -9,6 +9,7 @@
  */
 package org.openmrs.module.webservices.rest.web.v1_0.resource.openmrs1_9;
 
+import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ import org.openmrs.module.webservices.rest.web.ConversionUtil;
 import org.openmrs.module.webservices.rest.web.RequestContext;
 import org.openmrs.module.webservices.rest.web.api.RestService;
 import org.openmrs.module.webservices.rest.web.representation.Representation;
+import org.openmrs.module.webservices.rest.web.response.ConversionException;
 import org.openmrs.web.test.BaseModuleWebContextSensitiveTest;
 
 /**
@@ -73,4 +75,13 @@ public class CreateUpdatePatientResource1_9Test extends BaseModuleWebContextSens
 		Assert.assertEquals("Race = Muslim", attributes.get(0).get("display"));
 	}
 	
+	@Test(expected = ConversionException.class)
+	public void shouldCreatePatient_fromGET() throws Exception {
+		executeDataSet("personAttributeTypeWithConcept.xml");
+		SimpleObject patientSimpleObject = new SimpleObject();
+		InputStream object = getClass().getClassLoader().getResourceAsStream("create_patient_from_get.json");
+		Assert.assertNotNull(object);
+		patientSimpleObject.putAll(new ObjectMapper().readValue(object, HashMap.class));
+		SimpleObject created = (SimpleObject) resource.create(patientSimpleObject, new RequestContext());//conversionException
+	}
 }
